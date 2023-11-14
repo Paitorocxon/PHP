@@ -1,95 +1,105 @@
-<?php
-/**
- * ColorPaletteGenerator Class
- *
- * @copyright 2023 Fabian Müller
- * @license MIT License
- */
- 
- 
-/**
- * Class ColorPaletteGenerator
- * A class for generating random colors and color palettes.
- */
-class ColorPaletteGenerator
-{
-    /**
-     * Generates a random color in hexadecimal format.
-     *
-     * @return string The generated color in hexadecimal format.
-     */
-    public static function generateRandomColor(): string
-    {
-        // Generate a random hue between 0 and 360 degrees
-        $hue = mt_rand(0, 360);
 
-        // Keep saturation and lightness within specific ranges to ensure pleasant colors
-        $saturation = mt_rand(40, 80);
-        $lightness = mt_rand(30, 70);
 
-        // Convert HSL values to RGB values
-        $rgb = self::hslToRgb($hue, $saturation, $lightness);
+function generateRandomColor() {
+    // Generiere eine zufällige Hue (Farbton) zwischen 0 und 360 Grad
+    $hue = mt_rand(0, 360);
 
-        // Format RGB values as hexadecimal code
-        $color = sprintf("#%02x%02x%02x", $rgb['red'], $rgb['green'], $rgb['blue']);
+    // Saturation und Lightness können in einem bestimmten Bereich bleiben, um die Farben angenehm zu halten
+    $saturation = mt_rand(40, 80);
+    $lightness = mt_rand(30, 70);
 
-        return $color;
-    }
+    // Konvertiere HSL-Werte in RGB-Werte
+    $rgb = hslToRgb($hue, $saturation, $lightness);
 
-    /**
-     * Converts HSL values to RGB values.
-     *
-     * @param float $hue The hue in the range of 0 to 360 degrees.
-     * @param float $saturation The saturation in the range of 0 to 100.
-     * @param float $lightness The lightness in the range of 0 to 100.
-     *
-     * @return array The RGB values as an associative array ('red', 'green', 'blue').
-     */
-    private static function hslToRgb(float $hue, float $saturation, float $lightness): array
-    {
-        $hue /= 360;
-        $saturation /= 100;
-        $lightness /= 100;
+    // Formatiere RGB-Werte als Hexadezimalcode
+    $color = sprintf("#%02x%02x%02x", $rgb['r'], $rgb['g'], $rgb['b']);
 
-        $red = $lightness;
-        $green = $lightness;
-        $blue = $lightness;
-        $v = ($lightness <= 0.5) ? ($lightness * (1.0 + $saturation)) : ($lightness + $saturation - $lightness * $saturation);
-
-        // Remaining code remains unchanged
-        // ...
-
-        return [
-            'red' => round($red * 255),
-            'green' => round($green * 255),
-            'blue' => round($blue * 255),
-        ];
-    }
-
-    /**
-     * Generates a color palette with a specified number of colors.
-     *
-     * @param int $numColors The number of colors to generate.
-     *
-     * @return array An array containing the generated colors.
-     */
-    public static function generateColorPalette(int $numColors): array
-    {
-        $palette = [];
-
-        for ($i = 0; $i < $numColors; $i++) {
-            $palette[] = self::generateRandomColor();
-        }
-
-        return $palette;
-    }
+    return $color;
 }
 
-// Generate a color palette with 5 colors
-$colorPalette = ColorPaletteGenerator::generateColorPalette(5);
+function hslToRgb($h, $s, $l){
+    $h /= 360;
+    $s /= 100;
+    $l /= 100;
 
-// Output the generated colors
-foreach ($colorPalette as $color) {
+    $r = $l;
+    $g = $l;
+    $b = $l;
+    $v = ($l <= 0.5) ? ($l * (1.0 + $s)) : ($l + $s - $l * $s);
+
+    if ($v > 0){
+        $m;
+        $sv;
+        $sextant;
+        $fract;
+        $vsf;
+        $mid1;
+        $mid2;
+
+        $m = $l + $l - $v;
+        $sv = ($v - $m ) / $v;
+        $h *= 6.0;
+        $sextant = floor($h);
+        $fract = $h - $sextant;
+        $vsf = $v * $sv * $fract;
+        $mid1 = $m + $vsf;
+        $mid2 = $v - $vsf;
+
+        switch ($sextant)
+        {
+            case 0:
+                $r = $v;
+                $g = $mid1;
+                $b = $m;
+                break;
+            case 1:
+                $r = $mid2;
+                $g = $v;
+                $b = $m;
+                break;
+            case 2:
+                $r = $m;
+                $g = $v;
+                $b = $mid1;
+                break;
+            case 3:
+                $r = $m;
+                $g = $mid2;
+                $b = $v;
+                break;
+            case 4:
+                $r = $mid1;
+                $g = $m;
+                $b = $v;
+                break;
+            case 5:
+                $r = $v;
+                $g = $m;
+                $b = $mid2;
+                break;
+        }
+    }
+
+    $rgb['r'] = round($r * 255);
+    $rgb['g'] = round($g * 255);
+    $rgb['b'] = round($b * 255);
+
+    return $rgb;
+}
+
+function generateColorPalette($numColors) {
+    $palette = [];
+
+    for ($i = 0; $i < $numColors; $i++) {
+        $palette[] = generateRandomColor();
+    }
+
+    return $palette;
+}
+
+$colorPalette = generateColorPalette(5);
+
+
+foreach($colorPalette as $color) {
     echo "<div style=\"background-color:$color\">$color</div>";
 }
-?>
